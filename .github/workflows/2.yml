@@ -1,12 +1,14 @@
-name: Run Feed Processor
+name: Run Feed Processor 2
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'
+  workflow_run:
+    workflows: ["Run Feed Processor 1"]
+    types: [completed]
+
   workflow_dispatch:
 
 jobs:
-  run-processor:
+  run-processor-2:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     concurrency:
@@ -66,7 +68,7 @@ jobs:
           script: |
             adb shell wm dismiss-keyguard
             adb install -g "$GITHUB_WORKSPACE/private-repo/du2.apk"
-            adb shell pm grant com.sportzx.live android.permission.POST_NOTIFICATIONS || true
+            adb shell pm grant ${{ secrets.PRIVATE_XC }} android.permission.POST_NOTIFICATIONS || true
             python "$GITHUB_WORKSPACE/private-repo/fetch_and_decrypt.py"
 
       - name: Commit and Push output.json
