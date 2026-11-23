@@ -29,16 +29,16 @@ jobs:
 
       - name: Verify private repo files
         run: |
-          echo "=== Workspace ==="
-          pwd
-          echo "=== private-repo contents ==="
-          ls -lah private-repo/
-          echo "=== APK check ==="
+          echo "=== APK ==="
           file private-repo/dudetv_3.2v.apk || echo "APK NOT FOUND"
-          echo "=== Python script check ==="
+          echo "=== Script ==="
           ls -lah private-repo/fetch_and_decrypt.py || echo "SCRIPT NOT FOUND"
-          echo "=== requirements check ==="
-          ls -lah private-repo/requirements.txt || echo "REQ NOT FOUND"
+          echo "=== Config ==="
+          ls -lah private-repo/config.json || echo "CONFIG NOT FOUND"
+          echo "=== Frida ==="
+          ls -lah private-repo/decrypt_script.js || echo "FRIDA NOT FOUND"
+          echo "=== Decryptor ==="
+          ls -lah private-repo/Decryptor.jar || echo "JAR NOT FOUND"
 
       - name: Set up Java
         uses: actions/setup-java@v3
@@ -54,11 +54,10 @@ jobs:
           cache-dependency-path: private-repo/requirements.txt
 
       - name: Install Dependencies
-        working-directory: private-repo
         run: |
-          pip install -r requirements.txt
+          pip install -r private-repo/requirements.txt
           python -c "import Crypto; print('pycryptodome OK')"
-          python -c "import frida; print('frida OK')" || echo "frida not importable"
+          python -c "import frida; print('frida OK')" || echo "frida import failed"
 
       - name: Enable KVM
         run: |
@@ -80,18 +79,11 @@ jobs:
             -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
             -camera-back none -no-snapshot-save
           script: |
-            set -e
-            cd "$GITHUB_WORKSPACE/private-repo"
-            echo "=== Working dir ==="
-            pwd
-            ls -lah
             adb shell wm dismiss-keyguard
-            echo "=== Installing APK ==="
-            adb install -g dudetv_3.2v.apk
+            adb install -g "$GITHUB_WORKSPACE/private-repo/dudetv_3.2v.apk"
             adb shell pm grant com.sportzx.live android.permission.POST_NOTIFICATIONS || true
             export OUTPUT_DIR="$GITHUB_WORKSPACE/public-repo"
-            echo "=== Running Python ==="
-            python fetch_and_decrypt.py
+            python "$GITHUB_WORKSPACE/private-repo/fetch_and_decrypt.py"
 
       - name: Commit and Push output.json
         working-directory: public-repo
