@@ -53,6 +53,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         env:
           ANDROID_EMULATOR_WAIT_TIME_BEFORE_KILL: "5"
+          OUTPUT_DIR: ${{ github.workspace }}/public-repo
         with:
           api-level: 33
           target: google_apis
@@ -66,7 +67,6 @@ jobs:
             adb shell wm dismiss-keyguard
             adb install -g "$GITHUB_WORKSPACE/private-repo/du2.apk"
             adb shell pm grant com.sportzx.live android.permission.POST_NOTIFICATIONS || true
-            export OUTPUT_DIR="$GITHUB_WORKSPACE/public-repo"
             python "$GITHUB_WORKSPACE/private-repo/fetch_and_decrypt.py"
 
       - name: Commit and Push output.json
@@ -74,6 +74,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ ! -f output.json ]; then
+            echo "ERROR: output.json not found"
+            exit 1
+          fi
           git add -f output.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
