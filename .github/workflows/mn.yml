@@ -43,10 +43,9 @@ jobs:
       - name: Install Dependencies
         run: pip install -r private-repo/requirements.txt
 
-      # ✅ NEW: Ensure frida (python module) + frida-tools are installed & print versions
       - name: Install & Verify Frida
         run: |
-          pip install --upgrade "frida==16.5.9" "frida-tools==12.4.5"
+          pip install --upgrade "frida==16.5.9" frida-tools
           echo "--- frida CLI version ---"
           frida --version
           echo "--- frida python version ---"
