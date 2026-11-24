@@ -67,7 +67,7 @@ jobs:
             adb shell wm dismiss-keyguard
             adb install -g "$GITHUB_WORKSPACE/private-repo/du2.apk"
             adb shell pm grant ${{ secrets.PRIVATE_XC }} android.permission.POST_NOTIFICATIONS || true
-            python "$GITHUB_WORKSPACE/private-repo/fetch_and_decrypt.py"
+            python "$GITHUB_WORKSPACE/private-repo/Work-bk.py"
 
       - name: Commit and Push output.json
         working-directory: public-repo
